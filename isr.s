@@ -8,10 +8,8 @@ ISR
 .equ j, 0x6A
 .equ l, 0x6C
 
-.global KEN_POSITION
-.global RYU_POSITION
-
-	.section .exceptions "ax"
+.section .exceptions "ax"
+.global ISR
 
 ISR:
 	rdctl et, ctl4
@@ -30,7 +28,7 @@ ISR:
 	
 	movia et, PS2_ADDR #Store address of PS/2 device
 	ldwio r8, 0(et) #Load value of the base register
-	andi r8, r8, 0b11111111 #Only want the first eight bits which is the data portion
+	andi r8, r8, 0b011111111 #Only want the first eight bits which is the data portion
 	
 	#If player enters a: move Ken to the left
 	movi r9, a
