@@ -10,10 +10,11 @@ main funcion enables interrupts, and calls other subroutines
 KEN_POSITION: .word 0 #x position of Ken
 RYU_POSITION: .word 0 #y position of Ryu
 
+<<<<<<< HEAD
 
 .section .text
 
-background_image: .incbin "background.bin"
+background_image: .incbin "background.rgb565"
 .equ BACKGROUND_HEIGHT, 240
 .equ BACKGROUND_WIDTH, 320
 
