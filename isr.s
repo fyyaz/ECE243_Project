@@ -3,14 +3,12 @@ ISR
 */
 
 .equ PS2_ADDR, 0xFF200100
-.equ a, 0x97
-.equ d, 0x64
-.equ j, 0x6A
-.equ l, 0x6C
+.equ a, 0x01C
+.equ d, 0x023
+.equ j, 0x03B
+.equ l, 0x04B
 
-.section .exceptions "ax"
-.global ISR
-
+.section .exceptions, "ax"
 ISR:
 	rdctl et, ctl4
 	andi et, et, 0x080 #Check if keyboard interrupted

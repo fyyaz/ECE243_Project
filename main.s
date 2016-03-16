@@ -2,6 +2,7 @@
 main funcion enables interrupts, and calls other subroutines
 */
 
+
 .equ PS2_ADDR, 0xFF200100
 .global KEN_POSITION
 .global RYU_POSITION
@@ -9,6 +10,7 @@ main funcion enables interrupts, and calls other subroutines
 KEN_POSITION: .word 0 #x position of Ken
 RYU_POSITION: .word 0 #y position of Ryu
 
+.section .text
 .global _start
 _start:
 	#Enable interrupts on device
