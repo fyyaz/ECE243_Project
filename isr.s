@@ -8,7 +8,7 @@ ISR
 .equ j, 0x6A
 .equ l, 0x6C
 
-.section .exceptions "ax"
+.section .exceptions, "ax"
 .global ISR
 
 ISR:
