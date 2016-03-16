@@ -2,8 +2,6 @@
 ISR
 */
 
-.equ PS2_ADDR, 0xFF200100
-
 .equ a, 0x01C
 .equ d, 0x023
 .equ j, 0x03B
@@ -11,17 +9,49 @@ ISR
 
 .section .exceptions, "ax"
 ISR:
-	rdctl et, ctl4
-	andi et, et, 0x080 #Check if keyboard interrupted
-	beq et, r0, EXIT_EXCEPTION #If PS/2 didn't interrupt, return
-	
 	#Push current register values onto the stack
 	addi sp, sp, -16
 	stw r8, 0(sp)
 	stw r9, 4(sp)
 	stw r10, 8(sp)
 	stw r11, 12(sp)
+
+	rdctl et, ctl4
+	andi et, et, 0x080 #Check if keyboard interrupted
+	beq et, r0, CHECK_TIMER #If PS/2 didn't interrupt check the timer
+	br SERVE_PS2
+
+	CHECK_TIMER:
+		rdctl et, ctl4
+		andi et, et, 0b01 
+		beq et, r0, EXIT_EXCEPTION #neither timer nor ps2 interrupted
+
+	#SERVE TIMER
+	movia r8, GAME_STATE
+	ldwio r9, (r8)
+	beq r9, r0, GOTO_SPACE #currently displaying without spaces, now show the one with space bar text
+
+	#now check if previously was displaying with space text, if so show without now 
+	movi et, DRAW_BACKGROUND_SPACE 
+	beq r9, et, GOTO_NO_SPACE
+
+	GOTO_SPACE: #change the state so that background with space is drawn
+		movi r9, DRAW_BACKGROUND_SPACE
+		stwio r9, (r8)
+		br RESTART_TIMER
+
+	GOTO_NO_SPACE:
+		movi r9, DRAW_BACKGROUND
+		stwio r9, (r8)
+
+	RESTART_TIMER: #acknowledge timer interrupt and restart it
+		movia r9, TIMER
+		stwio r0, (r9)
+		movi r8, 0b0101
+		stwio r8, 4(r9)
+		br EXIT_EXCEPTION
 	
+	SERVE_PS2:
 	movia r10, KEN_POSITION
 	movia r11, RYU_POSITION
 	
