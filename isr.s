@@ -3,6 +3,7 @@ ISR
 */
 
 .equ PS2_ADDR, 0xFF200100
+
 .equ a, 0x01C
 .equ d, 0x023
 .equ j, 0x03B
