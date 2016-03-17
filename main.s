@@ -12,17 +12,19 @@ main funcion enables interrupts, and calls other subroutines
 .equ BACKGROUND_WIDTH, 320
 .equ PS2_ADDR, 0xFF200100
 .equ TIMER, 0xFF202000
-.equ ONE_SEC, 600000000
+.equ ONE_SEC, 500000000
 
 .section .data
 .global GAME_STATE
 .global KEN_POSITION
 .global RYU_POSITION
+.global BREAK_CODE_FLAG
 
 .align 2
 GAME_STATE: .word 0
 KEN_POSITION: .word 0 #x position of Ken
 RYU_POSITION: .word 0 #y position of Ryu
+BREAK_CODE_FLAG: .byte 0 #Set to 1 when receiving break code
 
 .align 0
 background_image: .incbin "background.rgb565"
@@ -72,7 +74,7 @@ _start:
 		START_BACKGROUND_YES_SPACES:
 			movia r4, background_image2 # yes text
 		START_BACKGROUND_NO_SPACES:
-			movia r4, background_image2
+			movia r4, background_image
 			
 		#set r5 to be background width, r6 is background height
 		movi r5, BACKGROUND_WIDTH  #x coordinates

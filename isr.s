@@ -6,15 +6,17 @@ ISR
 .equ d, 0x023
 .equ j, 0x03B
 .equ l, 0x04B
+.equ BREAK_CODE, 0x0F0
 
 .section .exceptions, "ax"
 ISR:
 	#Push current register values onto the stack
-	addi sp, sp, -16
+	addi sp, sp, -20
 	stw r8, 0(sp)
 	stw r9, 4(sp)
 	stw r10, 8(sp)
 	stw r11, 12(sp)
+	stw r12, 16(sp)
 
 	rdctl et, ctl4
 	andi et, et, 0x080 #Check if keyboard interrupted
@@ -52,12 +54,24 @@ ISR:
 		br EXIT_EXCEPTION
 	
 	SERVE_PS2:
+	
 	movia r10, KEN_POSITION
 	movia r11, RYU_POSITION
 	
 	movia et, PS2_ADDR #Store address of PS/2 device
 	ldwio r8, 0(et) #Load value of the base register
 	andi r8, r8, 0b011111111 #Only want the first eight bits which is the data portion
+	
+	#Check if break code was sent (F0)
+	movi r9, BREAK_CODE
+	beq r8, r9, SET_BREAK_CODE_FLAG
+	
+	#Check if break code flag is 1
+	movia et, BREAK_CODE_FLAG
+	ldb r9, 0(et)
+	movi r12, 0b1
+	#If it's 1, ignore the key and reset the flag
+	beq r12, r9, RESET_FLAG
 	
 	#If player enters a: move Ken to the left
 	movi r9, a
@@ -112,13 +126,27 @@ MOVE_RYU_RIGHT:
 	stw r9, 0(r11)
 	br EXIT_EXCEPTION
 	
+SET_BREAK_CODE_FLAG:
+	#Set break code to 1
+	movia r8, BREAK_CODE_FLAG
+	ldb r9, 0(r8)
+	addi r9, r9, 1
+	stb r9, 0(r8)
+	br EXIT_EXCEPTION
+	
+RESET_FLAG:
+	#Set break code flag to 0
+	addi r9, r9, -1
+	stb r9, 0(et)
+	
 EXIT_EXCEPTION:
 	#Pop off values on the stack
+	ldw r12, 16(sp)
 	ldw r11, 12(sp)
 	ldw r10, 8(sp)
 	ldw r9, 4(sp)
 	ldw r8, 0(sp)
-	addi sp, sp, 16
+	addi sp, sp, 20
 	
 	subi ea, ea, 4
 	eret
