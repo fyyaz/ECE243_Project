@@ -1,23 +1,30 @@
 /*
 main funcion enables interrupts, and calls other subroutines
 */
-
+/*
+	TODO: make graphics done in the interrupt
+*/
 .global PS2_ADDR
 .global TIMER
 .global DRAW_BACKGROUND
 .global DRAW_BACKGROUND_SPACE
+.global BACKGROUND_HEIGHT
+.global BACKGROUND_WIDTH
 .equ DRAW_BACKGROUND, 0
 .equ DRAW_BACKGROUND_SPACE, 1
 .equ BACKGROUND_HEIGHT, 240
 .equ BACKGROUND_WIDTH, 320
 .equ PS2_ADDR, 0xFF200100
 .equ TIMER, 0xFF202000
-.equ ONE_SEC, 600000000
+.equ ONE_SEC, 50000000
 
 .section .data
 .global GAME_STATE
 .global KEN_POSITION
 .global RYU_POSITION
+.global DRAWABLE
+.global background_image
+.global background_image2
 
 .align 2
 GAME_STATE: .word 0
@@ -27,6 +34,7 @@ RYU_POSITION: .word 0 #y position of Ryu
 .align 0
 background_image: .incbin "background.rgb565"
 background_image2: .incbin "background2.rgb565"
+DRAWABLE: .byte 1 #flag telling whether you can draw now
 
 .section .text
 
@@ -60,26 +68,5 @@ _start:
 	movi r9, 0b0101
 	movia r8, TIMER
 	stwio r9, 4(r8)
-
-	top:
-		
-		#check the state
-		movia r4, GAME_STATE
-		ldwio r4, (r4)
-		
-		#based on state choose the background image to load into r4
-		beq r4, r0, START_BACKGROUND_NO_SPACES #state = 0 means draw the start screen with no text
-		START_BACKGROUND_YES_SPACES:
-			movia r4, background_image2 # yes text
-		START_BACKGROUND_NO_SPACES:
-			movia r4, background_image2
-			
-		#set r5 to be background width, r6 is background height
-		movi r5, BACKGROUND_WIDTH  #x coordinates
-		movi r6, BACKGROUND_HEIGHT #y coordinates
-
-		#draw it
-		call draw_on_vga
-	br top
 
 	stop: br stop
