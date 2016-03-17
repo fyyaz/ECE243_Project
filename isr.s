@@ -17,6 +17,11 @@ ISR:
 	stw r10, 8(sp)
 	stw r11, 12(sp)
 	stw r12, 16(sp)
+	addi sp, sp, -16
+	stw r4, 0(sp)
+	stw r5, 4(sp)
+	stw r6, 8(sp)
+	stw ra, 12(sp)
 
 	rdctl et, ctl4
 	andi et, et, 0x080 #Check if keyboard interrupted
@@ -31,18 +36,40 @@ ISR:
 	#SERVE TIMER
 	movia r8, GAME_STATE
 	ldwio r9, (r8)
-	beq r9, r0, GOTO_SPACE #currently displaying without spaces, now show the one with space bar text
-
-	#now check if previously was displaying with space text, if so show without now 
-	movi et, DRAW_BACKGROUND_SPACE 
-	beq r9, et, GOTO_NO_SPACE
+	bne r9, r0, GOTO_NO_SPACE #currently displaying without spaces, now show the one with space bar text
 
 	GOTO_SPACE: #change the state so that background with space is drawn
+		#draw the background without spaces
+		movia r4, background_image
+		movi r5, BACKGROUND_WIDTH
+		movi r6, BACKGROUND_HEIGHT
+		
+		addi sp, sp, -8
+		stw r8, (sp)
+		stw r9, 4(sp)
+		call draw_on_vga
+		ldw r8, (sp)
+		ldw r9, 4(sp)
+		addi sp, sp, 8
+
 		movi r9, DRAW_BACKGROUND_SPACE
 		stwio r9, (r8)
 		br RESTART_TIMER
 
 	GOTO_NO_SPACE:
+		#draw the background with spaces
+		movia r4, background_image2
+		movi r5, BACKGROUND_WIDTH
+		movi r6, BACKGROUND_HEIGHT
+		
+		addi sp, sp, -8
+		stw r8, (sp)
+		stw r9, 4(sp)
+		call draw_on_vga
+		ldw r8, (sp)
+		ldw r9, 4(sp)
+		addi sp, sp, 8
+
 		movi r9, DRAW_BACKGROUND
 		stwio r9, (r8)
 
@@ -140,6 +167,12 @@ RESET_FLAG:
 	stb r9, 0(et)
 	
 EXIT_EXCEPTION:
+	#popopopopop
+	ldw r4, 0(sp)
+	ldw r5, 4(sp)
+	ldw r6, 8(sp)
+	ldw ra, 12(sp)
+	addi sp, sp, 16
 	#Pop off values on the stack
 	ldw r12, 16(sp)
 	ldw r11, 12(sp)

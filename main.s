@@ -1,24 +1,32 @@
 /*
 main funcion enables interrupts, and calls other subroutines
 */
-
+/*
+	TODO: make graphics done in the interrupt
+*/
 .global PS2_ADDR
 .global TIMER
 .global DRAW_BACKGROUND
 .global DRAW_BACKGROUND_SPACE
+.global BACKGROUND_HEIGHT
+.global BACKGROUND_WIDTH
 .equ DRAW_BACKGROUND, 0
 .equ DRAW_BACKGROUND_SPACE, 1
 .equ BACKGROUND_HEIGHT, 240
 .equ BACKGROUND_WIDTH, 320
 .equ PS2_ADDR, 0xFF200100
 .equ TIMER, 0xFF202000
-.equ ONE_SEC, 500000000
+.equ ONE_SEC, 50000000
+
 
 .section .data
 .global GAME_STATE
 .global KEN_POSITION
 .global RYU_POSITION
 .global BREAK_CODE_FLAG
+.global DRAWABLE
+.global background_image
+.global background_image2
 
 .align 2
 GAME_STATE: .word 0
@@ -29,6 +37,7 @@ BREAK_CODE_FLAG: .byte 0 #Set to 1 when receiving break code
 .align 0
 background_image: .incbin "background.rgb565"
 background_image2: .incbin "background2.rgb565"
+DRAWABLE: .byte 1 #flag telling whether you can draw now
 
 .section .text
 
@@ -62,6 +71,7 @@ _start:
 	movi r9, 0b0101
 	movia r8, TIMER
 	stwio r9, 4(r8)
+
 
 	top:
 		
