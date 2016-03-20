@@ -13,6 +13,7 @@
             <source_file filepath="true">draw_on_vga.s</source_file>
             <source_file filepath="true">isr.s</source_file>
             <source_file filepath="true">main.s</source_file>
+            <source_file filepath="true">ps2.s</source_file>
         </source_files>
         <options>
             <start_symbol>_start</start_symbol>

@@ -2,11 +2,7 @@
 ISR
 */
 
-.equ a, 0x01C
-.equ d, 0x023
-.equ j, 0x03B
-.equ l, 0x04B
-.equ BREAK_CODE, 0x0F0
+
 
 .section .exceptions, "ax"
 ISR:
@@ -81,7 +77,8 @@ ISR:
 		br EXIT_EXCEPTION
 	
 	SERVE_PS2:
-	
+		call ps2
+/*	
 	movia r10, KEN_POSITION
 	movia r11, RYU_POSITION
 	
@@ -165,7 +162,7 @@ RESET_FLAG:
 	#Set break code flag to 0
 	addi r9, r9, -1
 	stb r9, 0(et)
-	
+*/
 EXIT_EXCEPTION:
 	#popopopopop
 	ldw r4, 0(sp)
