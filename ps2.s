@@ -1,55 +1,16 @@
 /*
-ISR
-*/
+ * This function is called by the ISR 
+ * to handle keyboard interrupts
+ */
 
-<<<<<<< HEAD
 .equ a, 0x01C
 .equ d, 0x023
 .equ j, 0x03B
 .equ l, 0x04B
-.equ space, 0x29
 .equ BREAK_CODE, 0x0F0
-=======
+.global ps2
 
->>>>>>> a3375458f88c69981027acc735cb357e539fdcfb
-
-.section .exceptions, "ax"
-ISR:
-	#Push current register values onto the stack
-	addi sp, sp, -20
-	stw r8, 0(sp)
-	stw r9, 4(sp)
-	stw r10, 8(sp)
-	stw r11, 12(sp)
-	stw r12, 16(sp)
-	addi sp, sp, -16
-	stw r4, 0(sp)
-	stw r5, 4(sp)
-	stw r6, 8(sp)
-	stw ra, 12(sp)
-
-	rdctl et, ctl4
-	andi et, et, 0x080 #Check if keyboard interrupted
-	beq et, r0, CHECK_TIMER #If PS/2 didn't interrupt check the timer
-	br SERVE_PS2
-
-	CHECK_TIMER:
-		rdctl et, ctl4
-		andi et, et, 0b01 
-		beq et, r0, EXIT_EXCEPTION #neither timer nor ps2 interrupted
-
-	#SERVE TIMER
-	call update
-	#acknowledge timer interrupt and restart it
-	movia r9, TIMER
-	stwio r0, (r9)
-	movi r8, 0b0101
-	stwio r8, 4(r9)
-	br EXIT_EXCEPTION
-	
-	SERVE_PS2:
-		call ps2
-/*	
+ps2:
 	movia r10, KEN_POSITION
 	movia r11, RYU_POSITION
 	
@@ -85,11 +46,9 @@ ISR:
 	beq r8, r9, MOVE_RYU_RIGHT
 	
 	#Else if player hits spacebar: start game
-	movi r9, space
-	beq r8, r9, INIT_GAME
 	
 	#Else WTF
-	br EXIT_EXCEPTION
+	br EXIT
 	
 MOVE_KEN_LEFT:
 	#Get current posiiton information
@@ -97,7 +56,7 @@ MOVE_KEN_LEFT:
 	#Decrement Ken's position register by 1
 	addi r9, r9, -1 
 	stw r9, 0(r10)
-	br EXIT_EXCEPTION
+	br EXIT
 
 MOVE_KEN_RIGHT:
 	#Get current posiiton information
@@ -105,7 +64,7 @@ MOVE_KEN_RIGHT:
 	#Increment Ken's position register by 1
 	addi r9, r9, 1 
 	stw r9, 0(r10)
-	br EXIT_EXCEPTION
+	br EXIT
 
 MOVE_RYU_LEFT:
 	#Get current posiiton information
@@ -113,7 +72,7 @@ MOVE_RYU_LEFT:
 	#Decrement Ryu's position register by 1
 	addi r9, r9, -1 
 	stw r9, 0(r11)
-	br EXIT_EXCEPTION
+	br EXIT
 
 MOVE_RYU_RIGHT:
 	#Get current posiiton information
@@ -121,14 +80,7 @@ MOVE_RYU_RIGHT:
 	#Increment Ryu's position register by 1
 	addi r9, r9, 1 
 	stw r9, 0(r11)
-	br EXIT_EXCEPTION
-
-INIT_GAME:
-	#set the state as GAME_STARTED
-	movia r8, GAME_STATE
-	movi r9, GAME_STARTED
-	stw r9, (r8)
-	br EXIT_EXCEPTION
+	br EXIT
 	
 SET_BREAK_CODE_FLAG:
 	#Set break code to 1
@@ -136,27 +88,12 @@ SET_BREAK_CODE_FLAG:
 	ldb r9, 0(r8)
 	addi r9, r9, 1
 	stb r9, 0(r8)
-	br EXIT_EXCEPTION
+	br EXIT
 	
 RESET_FLAG:
 	#Set break code flag to 0
 	addi r9, r9, -1
 	stb r9, 0(et)
-*/
-EXIT_EXCEPTION:
-	#popopopopop
-	ldw r4, 0(sp)
-	ldw r5, 4(sp)
-	ldw r6, 8(sp)
-	ldw ra, 12(sp)
-	addi sp, sp, 16
-	#Pop off values on the stack
-	ldw r12, 16(sp)
-	ldw r11, 12(sp)
-	ldw r10, 8(sp)
-	ldw r9, 4(sp)
-	ldw r8, 0(sp)
-	addi sp, sp, 20
 	
-	subi ea, ea, 4
-	eret
+EXIT:
+	ret
