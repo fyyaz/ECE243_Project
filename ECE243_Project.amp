@@ -2,7 +2,7 @@
     <architecture>Nios II</architecture>
     <system>
         <sample_system_title>DE1-SoC Computer for Nios II</sample_system_title>
-        <cable>DE-SoC [USB-1]</cable>
+        <cable>null</cable>
         <processor>Nios2</processor>
         <reset_processor_during_load>false</reset_processor_during_load>
         <terminal>JTAG_UART</terminal>
@@ -13,6 +13,10 @@
             <source_file filepath="true">draw_on_vga.s</source_file>
             <source_file filepath="true">isr.s</source_file>
             <source_file filepath="true">main.s</source_file>
+            <source_file filepath="true">draw_start_screen_no_spaces.s</source_file>
+            <source_file filepath="true">draw_start_screen_spaces.s</source_file>
+            <source_file filepath="true">init.s</source_file>
+            <source_file filepath="true">update.s</source_file>
         </source_files>
         <options>
             <start_symbol>_start</start_symbol>
@@ -34,7 +38,7 @@
             </linker_section>
             <linker_section name=".text">
                 <memory_device>SDRAM.s1</memory_device>
-                <base_address>0x00000200</base_address>
+                <base_address>0x00000800</base_address>
                 <end_address>0x03FFFFFF</end_address>
                 <required_section/>
             </linker_section>

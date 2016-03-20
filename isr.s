@@ -6,6 +6,7 @@ ISR
 .equ d, 0x023
 .equ j, 0x03B
 .equ l, 0x04B
+.equ space, 0x29
 .equ BREAK_CODE, 0x0F0
 
 .section .exceptions, "ax"
@@ -34,51 +35,13 @@ ISR:
 		beq et, r0, EXIT_EXCEPTION #neither timer nor ps2 interrupted
 
 	#SERVE TIMER
-	movia r8, GAME_STATE
-	ldwio r9, (r8)
-	bne r9, r0, GOTO_NO_SPACE #currently displaying without spaces, now show the one with space bar text
-
-	GOTO_SPACE: #change the state so that background with space is drawn
-		#draw the background without spaces
-		movia r4, background_image
-		movi r5, BACKGROUND_WIDTH
-		movi r6, BACKGROUND_HEIGHT
-		
-		addi sp, sp, -8
-		stw r8, (sp)
-		stw r9, 4(sp)
-		call draw_on_vga
-		ldw r8, (sp)
-		ldw r9, 4(sp)
-		addi sp, sp, 8
-
-		movi r9, DRAW_BACKGROUND_SPACE
-		stwio r9, (r8)
-		br RESTART_TIMER
-
-	GOTO_NO_SPACE:
-		#draw the background with spaces
-		movia r4, background_image2
-		movi r5, BACKGROUND_WIDTH
-		movi r6, BACKGROUND_HEIGHT
-		
-		addi sp, sp, -8
-		stw r8, (sp)
-		stw r9, 4(sp)
-		call draw_on_vga
-		ldw r8, (sp)
-		ldw r9, 4(sp)
-		addi sp, sp, 8
-
-		movi r9, DRAW_BACKGROUND
-		stwio r9, (r8)
-
-	RESTART_TIMER: #acknowledge timer interrupt and restart it
-		movia r9, TIMER
-		stwio r0, (r9)
-		movi r8, 0b0101
-		stwio r8, 4(r9)
-		br EXIT_EXCEPTION
+	call update
+	#acknowledge timer interrupt and restart it
+	movia r9, TIMER
+	stwio r0, (r9)
+	movi r8, 0b0101
+	stwio r8, 4(r9)
+	br EXIT_EXCEPTION
 	
 	SERVE_PS2:
 	
@@ -117,6 +80,8 @@ ISR:
 	beq r8, r9, MOVE_RYU_RIGHT
 	
 	#Else if player hits spacebar: start game
+	movi r9, space
+	beq r8, r9, INIT_GAME
 	
 	#Else WTF
 	br EXIT_EXCEPTION
@@ -151,6 +116,13 @@ MOVE_RYU_RIGHT:
 	#Increment Ryu's position register by 1
 	addi r9, r9, 1 
 	stw r9, 0(r11)
+	br EXIT_EXCEPTION
+
+INIT_GAME:
+	#set the state as GAME_STARTED
+	movia r8, GAME_STATE
+	movi r9, GAME_STARTED
+	stw r9, (r8)
 	br EXIT_EXCEPTION
 	
 SET_BREAK_CODE_FLAG:
