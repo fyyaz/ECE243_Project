@@ -8,6 +8,8 @@ draw_start_screen_spaces:
 	movi r5, BACKGROUND_WIDTH
 	movi r6, BACKGROUND_HEIGHT
 
+	call draw_on_vga
+
 	ldw ra, (sp)
 	addi sp, sp, 4
 	ret
