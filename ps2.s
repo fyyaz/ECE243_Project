@@ -45,13 +45,11 @@ ps2:
 	#Else if player enters l: move Ryu to the right
 	movi r9, l
 	beq r8, r9, MOVE_RYU_RIGHT
-	
+
 	#Else if player hits spacebar: start game
 	movi r9, space 
 	beq r8, r9, INIT_GAME
-	
-	
-	
+
 	#Else WTF
 	br EXIT
 	
