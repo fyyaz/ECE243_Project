@@ -7,6 +7,7 @@
 .equ d, 0x023
 .equ j, 0x03B
 .equ l, 0x04B
+.equ space, 0x29
 .equ BREAK_CODE, 0x0F0
 .global ps2
 
@@ -46,6 +47,10 @@ ps2:
 	beq r8, r9, MOVE_RYU_RIGHT
 	
 	#Else if player hits spacebar: start game
+	movi r9, space 
+	beq r8, r9, INIT_GAME
+	
+	
 	
 	#Else WTF
 	br EXIT
@@ -80,6 +85,12 @@ MOVE_RYU_RIGHT:
 	#Increment Ryu's position register by 1
 	addi r9, r9, 1 
 	stw r9, 0(r11)
+	br EXIT
+
+INIT_GAME:
+	movia r8, GAME_STATE
+	movi r9, GAME_STARTED
+	stw r9, (r8)
 	br EXIT
 	
 SET_BREAK_CODE_FLAG:
